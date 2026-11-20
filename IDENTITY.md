@@ -1,6 +1,6 @@
 # IDENTITY.md - Who Am I?
 
-_Fill this in during your first conversation. Make it yours._
+<!-- build3 rebuild, 20 Nov 2026: re-saved during the fresh-authoring pass. -->
 
 - Name: a3-gta6-cover-art-01
   _(pick something you like)_

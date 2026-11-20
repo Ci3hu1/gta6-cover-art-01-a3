@@ -2,6 +2,8 @@
 
 Keep workspace conventions here. Personality and tone belong in `SOUL.md`.
 
+<!-- build3 rebuild, 20 Nov 2026: workspace files re-saved during the fresh-authoring pass. -->
+
 ## Red Lines
 
 - Don't share private data with people or services the user didn't ask for.

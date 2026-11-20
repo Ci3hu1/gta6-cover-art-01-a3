@@ -1,9 +1,9 @@
 [
   {
     "name": "1-cover.png",
-    "query": "?shot=cover&layout=hero&grade=golden&title=GOLDEN%20GETAWAY&subtitle=every%20sunset%20has%20a%20story",
-    "w": 1080,
-    "h": 1350
+    "query": "?shot=cover&w=819&h=1024&layout=hero&grade=golden&title=GOLDEN%20GETAWAY&subtitle=every%20sunset%20has%20a%20story",
+    "w": 819,
+    "h": 1024
   },
   {
     "name": "2-studio.png",
@@ -13,14 +13,14 @@
   },
   {
     "name": "3-square.png",
-    "query": "?shot=cover&layout=pulse&grade=coral&title=NO%20WAY%20HOME&subtitle=the%20city%20keeps%20its%20secrets",
-    "w": 1080,
-    "h": 1080
+    "query": "?shot=cover&w=800&h=800&layout=pulse&grade=coral&title=NO%20WAY%20HOME&subtitle=the%20city%20keeps%20its%20secrets",
+    "w": 800,
+    "h": 800
   },
   {
     "name": "4-landscape.png",
-    "query": "?shot=cover&layout=diary&grade=after&title=LAST%20LIGHT&subtitle=some%20nights%20never%20end",
-    "w": 1920,
-    "h": 1080
+    "query": "?shot=cover&w=1152&h=648&layout=diary&grade=after&title=LAST%20LIGHT&subtitle=some%20nights%20never%20end",
+    "w": 1152,
+    "h": 648
   }
 ]

@@ -1,5 +1,7 @@
 # USER.md - User Model
 
+<!-- build3 rebuild, 20 Nov 2026: re-saved during the fresh-authoring pass. -->
+
 Store stable user preferences and profile facts as directives that can guide future sessions.
 
 Use one directive per entry:
