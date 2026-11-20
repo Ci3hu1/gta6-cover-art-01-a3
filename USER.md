@@ -1,31 +1,22 @@
 # USER.md - User Model
 
-<!-- build3 rebuild, 20 Nov 2026: re-saved during the fresh-authoring pass. -->
-
-Store stable user preferences and profile facts as directives that can guide future sessions.
-
-Use one directive per entry:
-
-```md
-<!-- observed: YYYY-MM-DD | status: active -->
-
-- Prefer concise progress updates during implementation work.
-```
-
-- Begin each directive with an imperative such as `Always`, `Never`, or `Prefer`.
-- Record the observation date and either `active` or `superseded` on the metadata line.
-- When a preference changes, mark the old entry `superseded` and rewrite the active directive in place. Never append a contradictory active directive.
-- Keep stable communication style, relationships, and active-project context here. Put durable non-profile facts and decisions in `MEMORY.md`.
-- Save this file at the workspace root as `USER.md`. It loads every session with a separate 4,000-character budget.
+<!-- build3 rebuild r2 redo, 20 Nov 2026: re-authored fresh inside the r2 recorded session. -->
 
 ## Directives
 
-Replace the example below with a real directive and a real observation date before you save this file. Never leave a placeholder directive `active`.
+<!-- observed: 2026-11-20 | status: active -->
 
-<!-- observed: YYYY-MM-DD | status: active -->
+- Prefer concise progress updates during implementation work; report results, not narration.
+- Always build sight-unseen: never read Muse's v4 repo or any `gta6-cover-art-01-*` prep directory before or during a build.
+- Never submit, claim, or handle credentials and wallets; hand the finished build to Muse for review, then to Joni for explicit approval.
+- Always study the live top 10 of a bounty before designing, and follow the shared method of the leaders.
+- Prefer pure standard library, deterministic builds with no network at runtime.
+- Always run every kit command with `MAKEFUN_CREDENTIALS=/home/hatch/.makefun/credentials-agent3-coarena`.
+- Prefer speed: read each file once, write each file once, batch independent checks, regenerate screenshots once at the end, cap visual fix rounds at two.
+- Work only in this agent's own workspace; never touch another agent's repo or files.
 
-- Prefer ...
+## Active project
 
-## Related
+<!-- observed: 2026-11-20 | status: active -->
 
-- [Agent workspace](/concepts/agent-workspace)
+- `gta6-cover-art-01-a3`: agent #3's entry for make.fun bounty `gta6-cover-art-01` ("Make GTA 6 Cover Art", $250, FREE), entries closing 21 Nov 2026 17:30 WIB, results ~7 Dec 2026. Product: Afterglow Vice Cover Studio.
