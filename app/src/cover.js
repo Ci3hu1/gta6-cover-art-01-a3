@@ -1,11 +1,16 @@
-// Afterglow compositor: deterministic 2D-canvas art, no network, no dependencies,
-// no randomness. The same state always renders the same pixels.
+// Afterglow Vice Cover Studio — the compositor.
+// Everything here is deterministic 2D-canvas work: no network, no randomness,
+// no Date. The same state always paints the same pixels.
 //
-// The composition has two regions. Photographs fill a photo zone; the magazine
-// furniture and the headline fill a type band beside or below it. Because the
-// band is a separate region, the headline can never land on a face at any aspect
-// ratio, and the role tags are inset from every panel edge so none is clipped.
+// How a cover is built: photographs fill a photo zone, and all the magazine
+// furniture (headline, quote, seal, cast strip, barcode) lives in a separate
+// type band — below the photos on tall and square covers, beside them on
+// landscape ones. Because the band is its own region, the headline can never
+// sit on a face, and the role tags are inset from every panel edge so they
+// can never be clipped by a frame.
 
+// The five cast members. cx/cy is the focal point of the photograph (0..1);
+// scale is the default zoom for that frame.
 const PEOPLE = [
   { id: 'mara', name: 'MARA SOL',   role: 'THE GETAWAY DRIVER', photo: 'boulevard.jpg', color: '#e98b75', cx: .50, cy: .34, scale: 1 },
   { id: 'nico', name: 'NICO VEGA',  role: 'THE FIXER',          photo: 'rooftop.jpg',   color: '#efbd72', cx: .50, cy: .30, scale: 1 },
@@ -14,6 +19,8 @@ const PEOPLE = [
   { id: 'jade', name: 'JADE KNOX',  role: 'THE WILDCARD',       photo: 'garage.jpg',    color: '#df9b70', cx: .50, cy: .30, scale: 1 }
 ];
 
+// The eight frames. Every one shows all five people; the hero cell breaks
+// the grid so the cover has a clear lead photograph.
 const LAYOUTS = [
   { id: 'hero',   name: 'HERO + 3' },
   { id: 'pulse',  name: 'PULSE' },
@@ -25,6 +32,7 @@ const LAYOUTS = [
   { id: 'full',   name: 'FULL BLEED' }
 ];
 
+// The eight colour stories. Each one washes every panel and the type band.
 const GRADES = [
   { id: 'golden',   name: 'GOLDEN HOUR', top: '#ffc17e', mid: '#f08478', bottom: '#7d2b57', glow: '#ffc069' },
   { id: 'coral',    name: 'CORAL CLUB',  top: '#ff997c', mid: '#e45e80', bottom: '#4b2358', glow: '#ff7e93' },
@@ -36,15 +44,16 @@ const GRADES = [
   { id: 'electric', name: 'ELECTRIC',    top: '#8bd1cc', mid: '#8c78ba', bottom: '#412b64', glow: '#ff9cbd' }
 ];
 
-// Cells are normalised inside the photo zone: {p: person index, x, y, w, h}.
+// Cells are normalised inside the photo zone: { p: person index, x, y, w, h }.
+// A person may appear in more than one cell; the hero cell is always the lead.
 const CELLS = {
   hero: [
-    { p: 0, x: 0,      y: 0,    w: .62,   h: .665 },
-    { p: 1, x: .625,   y: 0,    w: .375,  h: .33  },
-    { p: 2, x: .625,   y: .335, w: .375,  h: .33  },
-    { p: 3, x: 0,      y: .67,  w: .31,   h: .33  },
-    { p: 4, x: .315,   y: .67,  w: .305,  h: .33  },
-    { p: 2, x: .625,   y: .67,  w: .375,  h: .33  }
+    { p: 0, x: 0,     y: 0,    w: .62,   h: .665 },
+    { p: 1, x: .625,  y: 0,    w: .375,  h: .33  },
+    { p: 2, x: .625,  y: .335, w: .375,  h: .33  },
+    { p: 3, x: 0,     y: .67,  w: .31,   h: .33  },
+    { p: 4, x: .315,  y: .67,  w: .305,  h: .33  },
+    { p: 2, x: .625,  y: .67,  w: .375,  h: .33  }
   ],
   pulse: [
     { p: 0, x: 0,      y: 0,    w: .5,    h: .55 },
@@ -78,38 +87,39 @@ const CELLS = {
     { p: 1, x: .3333,  y: .66,  w: .3333, h: .34 }
   ],
   duet: [
-    { p: 0, x: 0,      y: 0,    w: .615, h: 1 },
-    { p: 1, x: .62,    y: 0,    w: .38,  h: .33 },
-    { p: 2, x: .62,    y: .335, w: .38,  h: .325 },
-    { p: 3, x: .62,    y: .665, w: .38,  h: .165 },
-    { p: 4, x: .62,    y: .835, w: .38,  h: .165 }
+    { p: 0, x: 0,     y: 0,    w: .615, h: 1 },
+    { p: 1, x: .62,   y: 0,    w: .38,  h: .33 },
+    { p: 2, x: .62,   y: .335, w: .38,  h: .325 },
+    { p: 3, x: .62,   y: .665, w: .38,  h: .165 },
+    { p: 4, x: .62,   y: .835, w: .38,  h: .165 }
   ],
   night: [
-    { p: 2, x: 0,      y: 0,    w: .5,   h: .42 },
-    { p: 1, x: .5,     y: 0,    w: .5,   h: .42 },
-    { p: 4, x: 0,      y: .425, w: .33,  h: .36 },
-    { p: 0, x: .335,   y: .425, w: .665, h: .575 },
-    { p: 3, x: 0,      y: .79,  w: .33,  h: .21 }
+    { p: 2, x: 0,     y: 0,    w: .5,   h: .42 },
+    { p: 1, x: .5,    y: 0,    w: .5,   h: .42 },
+    { p: 4, x: 0,     y: .425, w: .33,  h: .36 },
+    { p: 0, x: .335,  y: .425, w: .665, h: .575 },
+    { p: 3, x: 0,     y: .79,  w: .33,  h: .21 }
   ],
   full: [
-    { p: 0, x: 0,     y: 0,    w: .78, h: 1 },
-    { p: 1, x: .78,   y: 0,    w: .22, h: .25 },
-    { p: 2, x: .78,   y: .25,  w: .22, h: .25 },
-    { p: 3, x: .78,   y: .5,   w: .22, h: .25 },
-    { p: 4, x: .78,   y: .75,  w: .22, h: .25 }
+    { p: 0, x: 0,    y: 0,    w: .78, h: 1 },
+    { p: 1, x: .78,  y: 0,    w: .22, h: .25 },
+    { p: 2, x: .78,  y: .25,  w: .22, h: .25 },
+    { p: 3, x: .78,  y: .5,   w: .22, h: .25 },
+    { p: 4, x: .78,  y: .75,  w: .22, h: .25 }
   ]
 };
 
-// Wide screens keep the photograph column on the left and stand the type band on
-// the right, so a landscape export reads like a spread rather than a squashed page.
+// On wide covers the photograph column stays on the left and the type band
+// stands on the right, so a landscape export reads like a spread rather
+// than a squashed page. The cell shapes are the same; only the band moves.
 const WIDE_CELLS = {
   hero: [
-    { p: 0, x: 0,      y: 0,    w: .62,   h: .665 },
-    { p: 1, x: .625,   y: 0,    w: .375,  h: .33  },
-    { p: 2, x: .625,   y: .335, w: .375,  h: .33  },
-    { p: 3, x: 0,      y: .67,  w: .31,   h: .33  },
-    { p: 4, x: .315,   y: .67,  w: .305,  h: .33  },
-    { p: 2, x: .625,   y: .67,  w: .375,  h: .33  }
+    { p: 0, x: 0,     y: 0,    w: .62,   h: .665 },
+    { p: 1, x: .625,  y: 0,    w: .375,  h: .33  },
+    { p: 2, x: .625,  y: .335, w: .375,  h: .33  },
+    { p: 3, x: 0,     y: .67,  w: .31,   h: .33  },
+    { p: 4, x: .315,  y: .67,  w: .305,  h: .33  },
+    { p: 2, x: .625,  y: .67,  w: .375,  h: .33  }
   ],
   pulse: [
     { p: 0, x: 0,      y: 0,    w: .5,    h: .55 },
@@ -143,33 +153,35 @@ const WIDE_CELLS = {
     { p: 1, x: .3333,  y: .66,  w: .3333, h: .34 }
   ],
   duet: [
-    { p: 0, x: 0,      y: 0,    w: .615, h: 1 },
-    { p: 1, x: .62,    y: 0,    w: .38,  h: .33 },
-    { p: 2, x: .62,    y: .335, w: .38,  h: .325 },
-    { p: 3, x: .62,    y: .665, w: .38,  h: .165 },
-    { p: 4, x: .62,    y: .835, w: .38,  h: .165 }
+    { p: 0, x: 0,     y: 0,    w: .615, h: 1 },
+    { p: 1, x: .62,   y: 0,    w: .38,  h: .33 },
+    { p: 2, x: .62,   y: .335, w: .38,  h: .325 },
+    { p: 3, x: .62,   y: .665, w: .38,  h: .165 },
+    { p: 4, x: .62,   y: .835, w: .38,  h: .165 }
   ],
   night: [
-    { p: 2, x: 0,      y: 0,    w: .5,   h: .42 },
-    { p: 1, x: .5,     y: 0,    w: .5,   h: .42 },
-    { p: 4, x: 0,      y: .425, w: .33,  h: .36 },
-    { p: 0, x: .335,   y: .425, w: .665, h: .575 },
-    { p: 3, x: 0,      y: .79,  w: .33,  h: .21 }
+    { p: 2, x: 0,     y: 0,    w: .5,   h: .42 },
+    { p: 1, x: .5,    y: 0,    w: .5,   h: .42 },
+    { p: 4, x: 0,     y: .425, w: .33,  h: .36 },
+    { p: 0, x: .335,  y: .425, w: .665, h: .575 },
+    { p: 3, x: 0,     y: .79,  w: .33,  h: .21 }
   ],
   full: [
-    { p: 0, x: 0,     y: 0,    w: .78, h: 1 },
-    { p: 1, x: .78,   y: 0,    w: .22, h: .25 },
-    { p: 2, x: .78,   y: .25,  w: .22, h: .25 },
-    { p: 3, x: .78,   y: .5,   w: .22, h: .25 },
-    { p: 4, x: .78,   y: .75,  w: .22, h: .25 }
+    { p: 0, x: 0,    y: 0,    w: .78, h: 1 },
+    { p: 1, x: .78,  y: 0,    w: .22, h: .25 },
+    { p: 2, x: .78,  y: .25,  w: .22, h: .25 },
+    { p: 3, x: .78,  y: .5,   w: .22, h: .25 },
+    { p: 4, x: .78,  y: .75,  w: .22, h: .25 }
   ]
 };
 
-const SOFT_Q = 0.45;
 const INK = '#0e0b16';
+// The duotone plate is rendered at this fraction of the photo size: cheap,
+// and it keeps exported PNGs light because the grade wash hides the softness.
+const PLATE_Q = 0.45;
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const pad2 = n => String(n).padStart(2, '0');
+const two = n => String(n).padStart(2, '0');
 
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -177,6 +189,7 @@ function roundRect(ctx, x, y, w, h, r) {
   else ctx.rect(x, y, w, h);
 }
 
+// Shrink the font until the text fits, never below minSize. Returns the size used.
 function fitText(ctx, text, family, maxW, size, minSize, weight = '') {
   let s = size;
   ctx.font = `${weight}${s}px ${family}`;
@@ -187,8 +200,9 @@ function fitText(ctx, text, family, maxW, size, minSize, weight = '') {
   return s;
 }
 
-// One duotone pass per photograph: a soft grey plate multiplied by the grade, then
-// a screen lift that puts the warm highlight back. Keeps exported PNGs light.
+// One duotone pass per photograph: the picture is first reduced to a soft
+// grey plate, then multiplied by the grade and lifted with a warm screen
+// highlight. The grade wash is what makes every panel feel like one cover.
 function drawPhoto(ctx, img, x, y, w, h, person, grade, alpha = 1) {
   const iw = img.naturalWidth || img.width;
   const ih = img.naturalHeight || img.height;
@@ -206,8 +220,8 @@ function drawPhoto(ctx, img, x, y, w, h, person, grade, alpha = 1) {
   ctx.globalAlpha = alpha;
 
   const plate = document.createElement('canvas');
-  plate.width = Math.max(8, Math.round(dw * SOFT_Q));
-  plate.height = Math.max(8, Math.round(dh * SOFT_Q));
+  plate.width = Math.max(8, Math.round(dw * PLATE_Q));
+  plate.height = Math.max(8, Math.round(dh * PLATE_Q));
   const pctx = plate.getContext('2d');
   pctx.imageSmoothingEnabled = true;
   pctx.filter = 'grayscale(1) contrast(1.08) brightness(1.02)';
@@ -237,8 +251,9 @@ function drawPhoto(ctx, img, x, y, w, h, person, grade, alpha = 1) {
   ctx.restore();
 }
 
-// A small black role tag, two lines, always inset from the panel edges so it can
-// never be clipped by the frame, however small the cell gets.
+// A small black role tag, two lines. It is always inset from the panel edges
+// by a margin that scales with the cell, so the tag stays fully inside its
+// frame however small the cell gets.
 function drawRoleTag(ctx, rect, name, role) {
   const { x, y, w, h } = rect;
   if (w < 108 || h < 96) return;
@@ -276,6 +291,8 @@ function drawRoleTag(ctx, rect, name, role) {
   ctx.restore();
 }
 
+// One photograph cell: the duotone photo, a dark scrim at the foot so the
+// tag reads, and the role tag itself.
 function drawTile(ctx, rect, person, assets, grade, entry) {
   const { x, y, w, h } = rect;
   ctx.save();
@@ -287,8 +304,9 @@ function drawTile(ctx, rect, person, assets, grade, entry) {
   ctx.fillRect(x, y, w, h);
 
   const img = assets[person.photo];
-  if (img && img.complete && img.naturalWidth) drawPhoto(ctx, img, x, y, w, h, person, grade);
-  else {
+  if (img && img.complete && img.naturalWidth) {
+    drawPhoto(ctx, img, x, y, w, h, person, grade);
+  } else {
     const g = ctx.createLinearGradient(x, y, x, y + h);
     g.addColorStop(0, grade.top);
     g.addColorStop(.52, grade.mid);
@@ -307,9 +325,10 @@ function drawTile(ctx, rect, person, assets, grade, entry) {
   ctx.restore();
 }
 
-// Striped retro chrome: the letterform is rendered once to its own canvas, then a
-// vertical gradient and a set of horizontal stripes are composited onto the glyphs
-// alone, so nothing outside the letters is touched.
+// Striped retro chrome for the headline: the letterform is rendered once to
+// its own canvas, then a vertical gradient and a set of horizontal stripes
+// are composited onto the glyphs alone, so nothing outside the letters is
+// touched. Returns the metrics the band layout needs to place the next line.
 function chromeTitle(ctx, text, cx, baseline, maxW, size) {
   const fs = fitText(ctx, text, 'Anton,Impact,sans-serif', maxW, size, Math.max(24, size * .42));
   ctx.save();
@@ -363,8 +382,8 @@ function chromeTitle(ctx, text, cx, baseline, maxW, size) {
   return { size: fs, ascent: fs * .76, descent: fs * .22, width: tw };
 }
 
-// A star is drawn as a path, never set as a glyph: a headless browser with a thin
-// font set has no U+2605 and would leave the rating row blank.
+// A star drawn as a path, never set as a glyph: a headless browser with a
+// thin font set has no U+2605 and would leave the rating row blank.
 function starPath(ctx, cx, cy, r, points = 5, inner = .44) {
   ctx.beginPath();
   for (let i = 0; i < points * 2; i++) {
@@ -514,9 +533,9 @@ function drawBarcode(ctx, x, y, w, h) {
   ctx.restore();
 }
 
-// The cast strip under the script line is typographic, not photographic: five
-// numbered columns with a hairline between them, so the bottom of the cover reads
-// as a clean credit strip instead of a row of ragged thumbnails.
+// The cast strip under the script line is typographic, not photographic:
+// five numbered columns with a hairline between them, so the bottom of the
+// cover reads as a clean credit strip instead of a row of ragged thumbnails.
 function drawCastStrip(ctx, x, y, w, h, cast, color) {
   const cols = cast.length;
   const colW = w / cols;
@@ -535,7 +554,7 @@ function drawCastStrip(ctx, x, y, w, h, cast, color) {
     ctx.textAlign = 'left';
     ctx.fillStyle = '#e8bd76';
     ctx.font = `700 ${numSize}px Barlow,Arial`;
-    ctx.fillText(pad2(i + 1), cx + colW * .1, y + numSize);
+    ctx.fillText(two(i + 1), cx + colW * .1, y + numSize);
 
     ctx.fillStyle = '#fdf2e2';
     ctx.font = `700 ${nameSize}px Barlow,Arial`;
@@ -567,10 +586,10 @@ function bandBackground(ctx, x, y, w, h, grade, vertical) {
   ctx.fillRect(x, y, w, h);
 }
 
-// The band is laid out as a measured stack: every element reports its height and
-// the type scale shrinks until the whole stack fits the band with air to spare.
-// Nothing can collide with the headline or spill past the frame.
-function bandFurniture(ctx, P, state, grade, cast, assets) {
+// The band is laid out as a measured stack: every element reports its height
+// and the type scale shrinks until the whole stack fits the band with air to
+// spare. Nothing can collide with the headline or spill past the frame.
+function bandFurniture(ctx, P, state, grade, cast) {
   const { x: px, y: py, w: pw, h: ph } = P;
   const margin = pw * .062;
   const inner = pw - margin * 2;
@@ -679,8 +698,9 @@ function bandFurniture(ctx, P, state, grade, cast, assets) {
   ctx.restore();
 }
 
-// Landscape: the same stack stood on its side, in a narrower column. It gets its
-// own scale search so a 1920 x 1080 export reads as a spread, not a squashed page.
+// Landscape: the same stack stood on its side, in a narrower column. It gets
+// its own scale search so a 1920 x 1080 export reads as a spread, not a
+// squashed page.
 function columnFurniture(ctx, P, state, grade, cast) {
   const { x: px, y: py, w: pw, h: ph } = P;
   const margin = pw * .085;
@@ -775,6 +795,8 @@ function columnFurniture(ctx, P, state, grade, cast) {
   ctx.restore();
 }
 
+// A faint deterministic grain: a fixed grid of dots, so the cover never
+// looks flat and no two renders can drift.
 function drawGrain(ctx, w, h) {
   ctx.save();
   ctx.globalAlpha = .055;
@@ -877,7 +899,7 @@ export function renderCover(ctx, state, assets, layoutId = 'hero', gradeId = 'go
   if (mode === 'wide') {
     columnFurniture(ctx, { x: zone.w, y: 0, w: w - zone.w, h }, state, grade, cast);
   } else {
-    bandFurniture(ctx, { x: 0, y: zone.h, w, h: h - zone.h }, state, grade, cast, assets);
+    bandFurniture(ctx, { x: 0, y: zone.h, w, h: h - zone.h }, state, grade, cast);
   }
 
   // Outer keyline, inset so it never crosses type or faces

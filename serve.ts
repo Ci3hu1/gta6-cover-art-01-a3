@@ -1,7 +1,8 @@
-// A small static server for app/ (Node 22+, standard library only) so the entry can
-// be tried locally with no build step: `node serve.ts` serves app/ on port 8080.
-// It answers the MIME types an offline web app needs, refuses any path outside
-// app/, and does nothing else: a development convenience, not a public server.
+// A small static server for app/ (Node 22+, standard library only) so the
+// entry can be tried locally with no build step: `node serve.ts` serves app/
+// on port 8080. It answers the MIME types an offline web app needs, refuses
+// any path outside app/, and does nothing else: a development convenience,
+// not a public server.
 import { createReadStream, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';

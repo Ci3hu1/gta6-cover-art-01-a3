@@ -1,6 +1,7 @@
 // Renders the four recorded views once the build is green. Chromium writes
-// truecolour PNGs far above the 256 KiB gate cap, so each frame is quantised to a
-// 256-colour palette afterwards with PIL. Build-time only: the app ships no deps.
+// truecolour PNGs far above the 256 KiB gate cap, so each frame is quantised
+// to a 256-colour palette afterwards with PIL. Build-time only: the app
+// ships no dependencies.
 //
 //   node serve.ts --port 8081 &
 //   node tools/render_shots.mjs

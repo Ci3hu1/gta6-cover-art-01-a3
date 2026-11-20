@@ -1,6 +1,7 @@
-/* Afterglow Vice Cover Studio: one stylesheet, no framework, no imports beyond
-   the three vendored font families. The palette is the same golden-hour story the
-   compositor paints, so the studio chrome and the art feel like one object. */
+/* Afterglow Vice Cover Studio — one stylesheet, no framework, no imports
+   beyond the three vendored font families. The studio chrome uses the same
+   golden-hour palette the compositor paints, so the app and the art feel
+   like one object. */
 
 @font-face{font-family:Anton;src:url('./fonts/anton-latin.woff2') format('woff2');font-display:swap}
 @font-face{font-family:Pacifico;src:url('./fonts/pacifico-latin.woff2') format('woff2');font-display:swap}

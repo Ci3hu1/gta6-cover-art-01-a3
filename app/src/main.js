@@ -1,3 +1,10 @@
+// Afterglow studio: the interactive shell around the compositor.
+// State, undo/redo, pointer reframing, pickers, export and the ?shot=
+// query parameters the recorded screenshots use.
+//
+// The compositor does the painting; this file only owns the studio state
+// and wires it to the DOM. Everything it does is local: photos are read
+// with URL.createObjectURL, nothing is fetched, nothing is uploaded.
 import {
   renderCover, getPeople, getLayouts, getGrades, getPhotoPath,
   hitTestCover, layoutMode
@@ -12,6 +19,7 @@ const grades = getGrades();
 const assets = {};
 const status = $('#status');
 
+// The studio state. cast[] and crop[] are parallel to people[].
 const state = {
   layout: 'hero',
   grade: 'golden',
@@ -81,6 +89,8 @@ function syncCastPanel() {
   $('#zoomValue').textContent = `${Number(crop.scale).toFixed(1)}\u00d7`;
 }
 
+// The little layout glyphs in the picker: each is a set of proportional
+// cells that echo the real grid.
 const LAYOUT_ICONS = {
   hero:   ['62% 66%', '38% 33%', '38% 33%', '31% 33%', '31% 33%', '38% 33%'],
   pulse:  ['50% 55%', '25% 55%', '25% 55%', '33% 45%', '33% 45%', '34% 45%'],
@@ -206,6 +216,8 @@ $('#redo').onclick = () => {
   status.textContent = 'Redo complete.';
 };
 
+// Drag a panel to re-centre its photograph. The drag moves the focal point
+// opposite to the pointer, so the photo follows the hand.
 canvas.addEventListener('pointerdown', e => {
   const rect = canvas.getBoundingClientRect();
   const x = (e.clientX - rect.left) / rect.width * canvas.width;
@@ -293,6 +305,8 @@ $('#photoInput').addEventListener('change', async e => {
   status.textContent = 'Photo loaded locally. It stays on this device.';
 });
 
+// Export re-renders the cover at the target size through the same compositor
+// the studio uses, so an export is exactly what the preview shows.
 function exportSize(w, h, label) {
   const out = document.createElement('canvas');
   out.width = w;
@@ -329,6 +343,9 @@ $('#saveProject').onclick = () => {
   status.textContent = 'Project settings saved to a local JSON file.';
 };
 
+// The recorded screenshots drive the studio through query parameters:
+// ?shot=cover hides the studio chrome, and layout/grade/title/subtitle
+// pick the cover that is photographed.
 function applyQuery() {
   const p = new URLSearchParams(location.search);
   const shot = p.get('shot');

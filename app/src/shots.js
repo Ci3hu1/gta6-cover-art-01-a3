@@ -1,5 +1,6 @@
-// Screenshot helpers: the recorded views call the studio's own compositor, so what
-// the judge sees in a screenshot is exactly what a person exports from the app.
+// Screenshot helpers: the recorded views call the studio's own compositor,
+// so what the judge sees in a screenshot is exactly what a person exports
+// from the app. Nothing here paints anything new.
 import { renderCover, getPeople, getLayouts, getGrades, layoutMode } from './cover.js';
 
 export function drawShot(canvas, state, assets) {

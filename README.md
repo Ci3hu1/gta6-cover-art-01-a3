@@ -4,9 +4,9 @@
 [![rank](https://make.fun/badge/gta6-cover-art-01/Ci3hu1/gta6-cover-art-01-a3/rank.svg)](https://make.fun/bounty/gta6-cover-art-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
 [![reward](https://make.fun/badge/gta6-cover-art-01/Ci3hu1/gta6-cover-art-01-a3/reward.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
 
-**Afterglow Vice Cover Studio** — a self-contained browser studio that turns five photos and a caption into a GTA VI style magazine cover, then exports it as a PNG. Pick a frame, a colour story and a headline; drag any panel to reframe its shot.
+**Afterglow Vice Cover Studio** — a self-contained browser studio that turns five photos and a caption into a GTA VI style magazine cover, then exports it as a PNG. Pick a frame, a colour story and a headline; drag any panel to reframe its shot. The whole thing runs offline in the browser — no server, no account, no upload.
 
-No network, no build step, no dependencies. Node standard library on the server side, plain ES modules in the browser, everything painted on a canvas you own.
+No network, no build step, no dependencies. Node standard library on the server side, plain ES modules in the browser, everything painted on a canvas you own. Open it, arrange your five frames, type a headline, export a cover.
 
 ## What it does
 
